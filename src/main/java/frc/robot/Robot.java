@@ -28,44 +28,42 @@ import com.ctre.phoenix.sensors.*;
 
 public class Robot<hDrive> extends SampleRobot {
 
-  private static boolean cam0 = false;
+private static boolean cam0 = false;
   String[] hosts = { "10.2.28.11", "10.2.28.10" };
 
   // Device
 
   // Network Tables
-  NetworkTableInstance inst = NetworkTableInstance.create();
-  NetworkTableInstance inst0 = NetworkTableInstance.create();
-  private NetworkTableEntry instance = new NetworkTableEntry(inst, 1);
-  private NetworkTableEntry instance0 = new NetworkTableEntry(inst0, 2);
-
   // PigeonIMU
-  PigeonIMU pigeon = new PigeonIMU(0);
+  PigeonIMU imu = new PigeonIMU(9);
 
   // Drive Base
-  private static CANSparkMax mLeft = new CANSparkMax(1, MotorType.kBrushless);
-  private static CANSparkMax mRight = new CANSparkMax(3, MotorType.kBrushless);
-  private static CANSparkMax middleWheel = new CANSparkMax(5, MotorType.kBrushless);
-  HolonomicDrive holoDrive = new HolonomicDrive(mLeft, mRight, middleWheel, pigeon);
+  private static CANSparkMax m_left = new CANSparkMax(1, MotorType.kBrushless);
+  private static CANSparkMax m_right = new CANSparkMax(3, MotorType.kBrushless);
+  private static CANSparkMax m_center = new CANSparkMax(5, MotorType.kBrushless);
+  
+  HolonomicDrive holoDrive = new HolonomicDrive(m_left, m_right, m_center, imu);
 
   // Elevator
-  private static CANSparkMax elevator = new CANSparkMax(6, MotorType.kBrushless);
+  private static CANSparkMax m_elevator = new CANSparkMax(6, MotorType.kBrushless);
 
   // Compressors & Pneumatics
-  // private static Compressor compressor = new Compressor();
+  private static Compressor compressor = new Compressor();
 
-  // Solenoids
-  Solenoid sole0 = new Solenoid(18, 0);
+  //TODO Change name to better suit
+  // Solenoids/Hatch Panels
+  private static Solenoid sole0 = new Solenoid(0 , 18);
 
   // Cargo
-  // private static PWMTalonSRX cargoArm = new PWMTalonSRX(1);
-  // private static PWMTalonSRX cargoIntake = new PWMTalonSRX(2);
-  // private static PWMVictorSPX cargoRollers = new PWMVictorSPX(1);
+  private static CANSparkMax m_intake = new CANSparkMax(7, MotorType.kBrushless);
 
   // Controls
 
   // Driver Controls
-  private static Joystick driverJoystick0 = new Joystick(0);
+  private static Joystick joy_base = new Joystick(0);
+
+  //Co-Driver Controls
+  private static Joystick joy_co = new Joystick(1);
 
   public Robot() {
 
@@ -79,7 +77,6 @@ public class Robot<hDrive> extends SampleRobot {
 
   }
 
-  @Override
   public void autonomous() {
 
   }
@@ -87,21 +84,23 @@ public class Robot<hDrive> extends SampleRobot {
   @Override
   public void operatorControl() {
 
-    holoDrive.fieldCentric(driverJoystick0);
+    holoDrive.fieldCentric(joy_base);
 
     while (isOperatorControl() && !isDisabled()) {
 
+      //TODO
+      /*
       // Switch Camera Feeds
-      if (driverJoystick0.getRawButton(5) == true && cam0 == false) {
+      if (joy_base.getRawButton(5) == true && cam0 == false) {
         CameraServer.getInstance().addAxisCamera("AxisCam0", hosts[0]);
         cam0 = true;
-      } else if (driverJoystick0.getRawButton(5) == true && cam0 == true) {
+      } else if (joy_base.getRawButton(5) == true && cam0 == true) {
         CameraServer.getInstance().addAxisCamera("AxisCam0", hosts[1]);
         cam0 = false;
       }
+      */
 
       // Elevator
-      elevator.set((driverJoystick0.getRawAxis(1)) / 2);
 
       // Used to allow the devices to reset
       Timer.delay(0.005);
