@@ -52,10 +52,12 @@ private static boolean cam0 = false;
 
   //TODO Change name to better suit
   // Solenoids/Hatch Panels
-  private static Solenoid sole0 = new Solenoid(0 , 18);
+  //private static Solenoid sole0 = new Solenoid(0 , 8);
 
-  // Cargo
-  private static CANSparkMax m_intake = new CANSparkMax(7, MotorType.kBrushless);
+  // Arm
+  private static CANSparkMax m_arm = new CANSparkMax(7, MotorType.kBrushless);
+
+  //Arm Motion
 
   // Controls
 
@@ -64,7 +66,9 @@ private static boolean cam0 = false;
 
   //Co-Driver Controls
   private static Joystick joy_co = new Joystick(1);
-
+  //
+  private Arm arm;
+  private Elevator elevator;
   public Robot() {
 
   }
@@ -74,6 +78,12 @@ private static boolean cam0 = false;
 
     // Axis Camera
     CameraServer.getInstance().addAxisCamera("AxisCam0", hosts[0]);
+    //
+    //Init Elevator
+    elevator = new Elevator(m_elevator, joy_co, true);
+    
+    //Init Arm
+    arm = new Arm(m_arm, joy_co, true);
 
   }
 
@@ -83,8 +93,8 @@ private static boolean cam0 = false;
 
   @Override
   public void operatorControl() {
-
-    holoDrive.fieldCentric(joy_base);
+    //TEMP Disable Drive
+    //holoDrive.fieldCentric(joy_base);
 
     while (isOperatorControl() && !isDisabled()) {
 
@@ -100,7 +110,8 @@ private static boolean cam0 = false;
       }
       */
 
-      // Elevator
+      elevator.PositionControl();
+      arm.PositionControl();
 
       // Used to allow the devices to reset
       Timer.delay(0.005);
