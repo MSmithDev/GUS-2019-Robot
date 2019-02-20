@@ -25,8 +25,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import org.opencv.ml.Ml;
 
 import com.ctre.phoenix.sensors.*;
-
-public class Robot<hDrive> extends SampleRobot {
+//Robot name Impulse
+public class Robot extends SampleRobot {
 
 private static boolean cam0 = false;
   String[] hosts = { "10.2.28.11", "10.2.28.10" };
@@ -112,6 +112,7 @@ private static boolean cam0 = false;
 
       elevator.PositionControl();
       arm.PositionControl();
+
 
       // Used to allow the devices to reset
       Timer.delay(0.005);
