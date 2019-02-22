@@ -34,30 +34,32 @@ public class Robot extends SampleRobot {
   String[] hosts = { "10.2.28.11", "10.2.28.10" };
 
   // PigeonIMU
-  PigeonIMU imu = new PigeonIMU(9);
+  PigeonIMU imu = new PigeonIMU(config.can_pigeon);
 
   // Drive Base
-  private static CANSparkMax m_left = new CANSparkMax(1, MotorType.kBrushless);
-  private static CANSparkMax m_right = new CANSparkMax(3, MotorType.kBrushless);
-  private static CANSparkMax m_center = new CANSparkMax(5, MotorType.kBrushless);
-
+  private static CANSparkMax m_left = new CANSparkMax(config.can_drive_left, MotorType.kBrushless);
+  private static CANSparkMax m_right = new CANSparkMax(config.can_drive_right, MotorType.kBrushless);
+  private static CANSparkMax m_center = new CANSparkMax(config.can_drive_center, MotorType.kBrushless);
   HolonomicDrive holoDrive = new HolonomicDrive(m_left, m_right, m_center, imu);
 
   // Elevator
-  private static CANSparkMax m_elevator = new CANSparkMax(6, MotorType.kBrushless);
+  private static CANSparkMax m_elevator = new CANSparkMax(config.can_elevator, MotorType.kBrushless);
 
   // Compressors & Pneumatics
   private static Compressor compressor = new Compressor();
 
   // Solenoids/Hatch Panels
-  private static Solenoid hatchExtend = new Solenoid(0, 8);
-  private static Solenoid airDump = new Solenoid(0, 7);
+  private static Solenoid hatchExtend = new Solenoid(config.solenoid_hatch_extend[0], config.solenoid_hatch_extend[1]);
+  private static Solenoid airDump = new Solenoid(config.solenoid_vacuum_release[0], config.solenoid_vacuum_release[1]);
+
+  // Vacuum Pump
+  private static TalonSRX vacuumPump = new TalonSRX(config.can_vacuum_pump);
 
   // Arm
-  private static CANSparkMax m_arm = new CANSparkMax(7, MotorType.kBrushless);
+  private static CANSparkMax m_arm = new CANSparkMax(config.can_intake_arm, MotorType.kBrushless);
 
   // Intake
-  private static TalonSRX intakeRoller = new TalonSRX(8);
+  private static TalonSRX intakeRoller = new TalonSRX(config.can_intake_roller);
 
   // Driver Controls
   private static Joystick joy_base = new Joystick(0);
