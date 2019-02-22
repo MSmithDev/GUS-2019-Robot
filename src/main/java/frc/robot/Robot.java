@@ -23,17 +23,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import org.opencv.ml.Ml;
-
 import com.ctre.phoenix.sensors.*;
+
 //Robot name Impulse
 public class Robot extends SampleRobot {
 
 private static boolean cam0 = false;
   String[] hosts = { "10.2.28.11", "10.2.28.10" };
 
-  // Device
-
-  // Network Tables
   // PigeonIMU
   PigeonIMU imu = new PigeonIMU(9);
 
@@ -50,23 +47,20 @@ private static boolean cam0 = false;
   // Compressors & Pneumatics
   private static Compressor compressor = new Compressor();
 
-  //TODO Change name to better suit
   // Solenoids/Hatch Panels
-  //private static Solenoid sole0 = new Solenoid(0 , 8);
+  private static Solenoid hatchExtend = new Solenoid(0 , 8);
+  private static Solenoid airDump = new Solenoid(0, 7);
 
   // Arm
   private static CANSparkMax m_arm = new CANSparkMax(7, MotorType.kBrushless);
-
-  //Arm Motion
-
-  // Controls
-
+  
   // Driver Controls
   private static Joystick joy_base = new Joystick(0);
 
   //Co-Driver Controls
   private static Joystick joy_co = new Joystick(1);
-  //
+  
+  // Initialize Methods
   private Arm arm;
   private Elevator elevator;
   public Robot() {
