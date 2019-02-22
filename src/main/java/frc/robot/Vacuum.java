@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 class Vacuum {
@@ -12,7 +13,13 @@ class Vacuum {
     }
 
 
+    public void start(){
+        vacuum.set(ControlMode.PercentOutput, .50);
+    }
 
+    public void stop(){
+        vacuum.set(ControlMode.PercentOutput, 0.0);
+    }
 
 
 
