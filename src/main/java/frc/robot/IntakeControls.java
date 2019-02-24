@@ -25,7 +25,7 @@ public class IntakeControls{
 
     }
 
-    public OperateIntake(){
+    public void OperateIntake(){
 
         // Intake Roller
         if (coJoystick.getRawButton(5)){
