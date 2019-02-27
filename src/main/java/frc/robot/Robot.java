@@ -23,15 +23,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import org.opencv.ml.Ml;
-
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.*;
 
-//Robot name Impulse
+//Robot Name: Impulse
 public class Robot extends SampleRobot {
-
-  private static boolean cam0 = false;
-  String[] hosts = { "10.2.28.11", "10.2.28.10" };
 
   // PigeonIMU
   PigeonIMU imu = new PigeonIMU(config.can_pigeon);
@@ -47,20 +43,21 @@ public class Robot extends SampleRobot {
   // Elevator
   private static CANSparkMax m_elevator = new CANSparkMax(config.can_elevator, MotorType.kBrushless);
 
-  // Compressors & Pneumatics
-  //private static Compressor compressor = new Compressor();
+  // Compressor
+  private static Compressor compressor = new Compressor(18);
 
   // Solenoids/Hatch Panels
   private static Solenoid hatchExtend = new Solenoid(config.solenoid_hatch_extend[0], config.solenoid_hatch_extend[1]);
   private static Solenoid airDump = new Solenoid(config.solenoid_vacuum_release[0], config.solenoid_vacuum_release[1]);
   private static Solenoid solenoid_hpod = new Solenoid(config.solenoid_hpod[0], config.solenoid_hpod[1]);
-  
+  private static Solenoid gearShift = new Solenoid(config.solenoid_gear_shift[0], config.solenoid_gear_shift[1]);
+
   // Vacuum Pump
   private static TalonSRX vacuumPump = new TalonSRX(config.can_vacuum_pump);
 
   // Arm
-  private static CANSparkMax m_arm = new CANSparkMax(config.can_intake_arm, MotorType.kBrushless);
-
+  private static Solenoid arm = new Solenoid(config.solenoid_arm[0], config.solenoid_arm[1]);
+ 
   // Intake
   private static TalonSRX intakeRoller = new TalonSRX(config.can_intake_roller);
 
@@ -71,7 +68,6 @@ public class Robot extends SampleRobot {
   private static Joystick joy_co = new Joystick(1);
 
   // Initialize Methods
-  private Arm arm;
   private Elevator elevator;
   private IntakeControls intake;
 
@@ -81,15 +77,11 @@ public class Robot extends SampleRobot {
 
   @Override
   public void robotInit() {
-
-    // Init Axis Camera
-    CameraServer.getInstance().addAxisCamera("AxisCam0", hosts[0]);
-    
+    compressor.start();
     // Init Elevator
     elevator = new Elevator(m_elevator, joy_co, true);
 
-    // Init Arm
-    arm = new Arm(m_arm, joy_co, true);
+    // Init Drive Train
     m_left.setInverted(false);
     m_right.setInverted(true);
     m_right2.follow(m_right);
@@ -97,7 +89,7 @@ public class Robot extends SampleRobot {
     m_center.setInverted(true);
     
     // Init Intake
-    //intake = new IntakeControls(joy_co, airDump, hatchExtend, intakeRoller, vacuumPump);
+    intake = new IntakeControls(joy_co, airDump, hatchExtend, intakeRoller, vacuumPump);
 
   }
 
@@ -112,18 +104,16 @@ public class Robot extends SampleRobot {
 
     while (isOperatorControl() && !isDisabled()) {
 
-      // TODO
-      /*
-       * // Switch Camera Feeds if (joy_base.getRawButton(5) == true && cam0 == false)
-       * { CameraServer.getInstance().addAxisCamera("AxisCam0", hosts[0]); cam0 =
-       * true; } else if (joy_base.getRawButton(5) == true && cam0 == true) {
-       * CameraServer.getInstance().addAxisCamera("AxisCam0", hosts[1]); cam0 = false;
-       * }
-       */
+      elevator.PositionControl();
+      intake.OperateIntake();
+      if (joy_co.getRawButton(8)){
+        arm.set(true);
+      }else if (!joy_co.getRawButton(8)){
+        arm.set(false);
+      }
 
-      //elevator.PositionControl();
-      //arm.PositionControl();
-      //intake.OperateIntake();
+      //TEMP TESTING
+      /*
         if(joy_base.getTwist() > 0.2 || joy_base.getTwist() < -0.2){
         m_left.set(joy_base.getY()-(joy_base.getTwist()/3));
         m_right.set(joy_base.getY()+(joy_base.getTwist()/3));
@@ -134,6 +124,8 @@ public class Robot extends SampleRobot {
        }
         solenoid_hpod.set(joy_base.getTrigger());
         m_center.set(joy_base.getX());
+       */
+       //arm.set(joy_base.getTrigger());
 
 
       // Used to allow the devices to reset

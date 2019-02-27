@@ -3,7 +3,6 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
-
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Solenoid;
 
@@ -32,8 +31,17 @@ public class IntakeControls{
             intakeRoller.set(ControlMode.PercentOutput, 1);
         }
         // Outtake Roller
-        if (coJoystick.getRawAxis(2) > 0.1){
+        else if (coJoystick.getRawAxis(2) > 0.1){
             intakeRoller.set(ControlMode.PercentOutput, -1);
+        }
+        else {
+            intakeRoller.set(ControlMode.PercentOutput, 0.0);
+        }
+        // Hatch Mechanism Extend & De-Extend
+        if (coJoystick.getRawButton(4)){
+            hatchExtend.set(true);
+        }else if (!coJoystick.getRawButton(4)){
+            hatchExtend.set(false);
         }
         // Vacuum Function
         if (coJoystick.getRawButton(6)){
@@ -43,6 +51,5 @@ public class IntakeControls{
         if (coJoystick.getRawAxis(3) > 0.1){
             vacuum.stop();          
         }
-
     }
 }

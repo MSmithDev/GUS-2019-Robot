@@ -14,7 +14,7 @@ class Vacuum {
 
 
     public void start(){
-        vacuum.set(ControlMode.PercentOutput, .50);
+        vacuum.set(ControlMode.PercentOutput, -1.0);
     }
 
     public void stop(){
