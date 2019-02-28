@@ -19,4 +19,7 @@ public static int[] solenoid_hatch_extend = {15, 3}; // PCM3 Channel 15
 public static int[] solenoid_gear_shift = {16, 4}; // PCM4 Channel 16
 
 
+public static int can_compressor_0 = 19;
+public static int can_compressor_1 = 20;
+
 }

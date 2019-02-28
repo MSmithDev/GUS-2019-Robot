@@ -3,6 +3,7 @@ package frc.robot;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.drive.Vector2d;
 
@@ -14,9 +15,11 @@ public class HolonomicDrive {
     private PigeonIMU imu;
     private Joystick joystick;
     private Thread t;
+    private Solenoid hpod;
 
-    public HolonomicDrive(CANSparkMax left, CANSparkMax right, CANSparkMax center, PigeonIMU imu) {
+    public HolonomicDrive(CANSparkMax left, CANSparkMax right, CANSparkMax center, PigeonIMU imu, Solenoid hpod) {
 
+        this.hpod = hpod;
         this.left = left;
         this.right = right;
         this.center = center;
@@ -44,6 +47,27 @@ public class HolonomicDrive {
 
                 drive.arcadeDrive(input.y, joystick.getTwist());
                 center.set(input.x);
+
+                if (joystick3D.getRawButton(2)){
+                    hpod.set(true);
+                }
+
+                if (hpod.get()){
+                    left.set((-joystick3D.getRawAxis(1)));
+                    right.set((-joystick3D.getRawAxis(1)));
+
+                    // Rotate Right
+                    if(joystick3D.getRawAxis(2) > 0){
+                    left.set((-joystick3D.getRawAxis(2)));
+                    right.set((joystick3D.getRawAxis(2)));
+                    }
+
+                    // Rotate Left
+                    if(joystick3D.getRawAxis(2) < 0){
+                        left.set((joystick3D.getRawAxis(2)));
+                        right.set((-joystick3D.getRawAxis(2)));
+                    }
+                }
 
                 try {
                     Thread.sleep(5);

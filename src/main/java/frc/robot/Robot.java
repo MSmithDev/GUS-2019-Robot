@@ -1,6 +1,8 @@
 package frc.robot;
 
 import edu.wpi.cscore.AxisCamera;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoSource;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -32,19 +34,18 @@ public class Robot extends SampleRobot {
   // PigeonIMU
   PigeonIMU imu = new PigeonIMU(config.can_pigeon);
 
-  // Drive Base
-  private static CANSparkMax m_left = new CANSparkMax(config.can_drive_left1, MotorType.kBrushless);
-  private static CANSparkMax m_right = new CANSparkMax(config.can_drive_right1, MotorType.kBrushless);
-  private static CANSparkMax m_left2 = new CANSparkMax(config.can_drive_left2, MotorType.kBrushless);
-  private static CANSparkMax m_right2 = new CANSparkMax(config.can_drive_right2, MotorType.kBrushless);
-  private static CANSparkMax m_center = new CANSparkMax(config.can_drive_center, MotorType.kBrushless);
-  HolonomicDrive holoDrive = new HolonomicDrive(m_left, m_right, m_center, imu);
+  // Camera
+  UsbCamera camera = new UsbCamera("Camera01", 0);
+
+  // Quadrature Encoder
+  Encoder elevatorEncoder = new Encoder;
 
   // Elevator
   private static CANSparkMax m_elevator = new CANSparkMax(config.can_elevator, MotorType.kBrushless);
 
   // Compressor
-  private static Compressor compressor = new Compressor(18);
+  private static Compressor compressor0 = new Compressor(config.can_compressor_0);
+  private static Compressor compressor1 = new Compressor(config.can_compressor_1);
 
   // Solenoids/Hatch Panels
   private static Solenoid hatchExtend = new Solenoid(config.solenoid_hatch_extend[0], config.solenoid_hatch_extend[1]);
@@ -57,9 +58,17 @@ public class Robot extends SampleRobot {
 
   // Arm
   private static Solenoid arm = new Solenoid(config.solenoid_arm[0], config.solenoid_arm[1]);
- 
+
   // Intake
   private static TalonSRX intakeRoller = new TalonSRX(config.can_intake_roller);
+
+  // Drive Base
+  private static CANSparkMax m_left = new CANSparkMax(config.can_drive_left1, MotorType.kBrushless);
+  private static CANSparkMax m_right = new CANSparkMax(config.can_drive_right1, MotorType.kBrushless);
+  private static CANSparkMax m_left2 = new CANSparkMax(config.can_drive_left2, MotorType.kBrushless);
+  private static CANSparkMax m_right2 = new CANSparkMax(config.can_drive_right2, MotorType.kBrushless);
+  private static CANSparkMax m_center = new CANSparkMax(config.can_drive_center, MotorType.kBrushless);
+  HolonomicDrive holoDrive = new HolonomicDrive(m_left, m_right, m_center, imu, solenoid_hpod);
 
   // Driver Controls
   private static Joystick joy_base = new Joystick(0);
@@ -81,16 +90,22 @@ public class Robot extends SampleRobot {
     // Init Elevator
     elevator = new Elevator(m_elevator, joy_co, true);
 
+    // Init Camera
+    CameraServer.getInstance().addCamera(camera);
+
     // Init Drive Train
     m_left.setInverted(false);
     m_right.setInverted(true);
     m_right2.follow(m_right);
     m_left2.follow(m_left);
     m_center.setInverted(true);
-    
-    // Init Intake
-    intake = new IntakeControls(joy_co, airDump, hatchExtend, intakeRoller, vacuumPump);
 
+    // Init Intake
+    intake = new IntakeControls(joy_co, joy_base, airDump, hatchExtend, intakeRoller, vacuumPump);
+
+    // Init Compressors
+    compressor0.start();
+    compressor1.start();
   }
 
   public void autonomous() {
@@ -101,32 +116,34 @@ public class Robot extends SampleRobot {
   public void operatorControl() {
     // TEMP Disable Drive
     // holoDrive.fieldCentric(joy_base);
+    compressor0.start();
+    compressor1.start();
 
     while (isOperatorControl() && !isDisabled()) {
 
+      if (joy_base.getRawButton(1) && gearShift.get()){
+        gearShift.set(false);
+      } else if (joy_base.getRawButton(1) && !gearShift.get()){
+        gearShift.set(true);
+      }
+
       elevator.PositionControl();
       intake.OperateIntake();
-      if (joy_co.getRawButton(8)){
+      if (joy_co.getRawButton(8)) {
         arm.set(true);
-      }else if (!joy_co.getRawButton(8)){
+      } else if (!joy_co.getRawButton(8)) {
         arm.set(false);
       }
 
-      //TEMP TESTING
+      // TEMP TESTING
       /*
-        if(joy_base.getTwist() > 0.2 || joy_base.getTwist() < -0.2){
-        m_left.set(joy_base.getY()-(joy_base.getTwist()/3));
-        m_right.set(joy_base.getY()+(joy_base.getTwist()/3));
-       }
-       else {
-        m_left.set(joy_base.getY());
-        m_right.set(joy_base.getY());
-       }
-        solenoid_hpod.set(joy_base.getTrigger());
-        m_center.set(joy_base.getX());
+       * if(joy_base.getTwist() > 0.2 || joy_base.getTwist() < -0.2){
+       * m_left.set(joy_base.getY()-(joy_base.getTwist()/3));
+       * m_right.set(joy_base.getY()+(joy_base.getTwist()/3)); } else {
+       * m_left.set(joy_base.getY()); m_right.set(joy_base.getY()); }
+       * solenoid_hpod.set(joy_base.getTrigger()); m_center.set(joy_base.getX());
        */
-       //arm.set(joy_base.getTrigger());
-
+      // arm.set(joy_base.getTrigger());
 
       // Used to allow the devices to reset
       Timer.delay(0.005);
@@ -140,5 +157,7 @@ public class Robot extends SampleRobot {
 
   public void disabled() {
     holoDrive.disable();
+    compressor0.stop();
+    compressor0.stop();
   }
 }
