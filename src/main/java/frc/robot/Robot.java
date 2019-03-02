@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.PWMVictorSPX;
@@ -38,7 +39,7 @@ public class Robot extends SampleRobot {
   UsbCamera camera = new UsbCamera("Camera01", 0);
 
   // Quadrature Encoder
-  Encoder elevatorEncoder = new Encoder;
+  Encoder elevatorEncoder = new Encoder(config.encoder_elevator[0], config.encoder_elevator[1]);
 
   // Elevator
   private static CANSparkMax m_elevator = new CANSparkMax(config.can_elevator, MotorType.kBrushless);
@@ -47,11 +48,16 @@ public class Robot extends SampleRobot {
   private static Compressor compressor0 = new Compressor(config.can_compressor_0);
   private static Compressor compressor1 = new Compressor(config.can_compressor_1);
 
-  // Solenoids/Hatch Panels
+  // Solenoids
   private static Solenoid hatchExtend = new Solenoid(config.solenoid_hatch_extend[0], config.solenoid_hatch_extend[1]);
   private static Solenoid airDump = new Solenoid(config.solenoid_vacuum_release[0], config.solenoid_vacuum_release[1]);
   private static Solenoid solenoid_hpod = new Solenoid(config.solenoid_hpod[0], config.solenoid_hpod[1]);
   private static Solenoid gearShift = new Solenoid(config.solenoid_gear_shift[0], config.solenoid_gear_shift[1]);
+  private static Solenoid liftFL = new Solenoid(config.solenoid_liftfl[0], config.solenoid_liftfl[1]);
+  private static Solenoid liftBL = new Solenoid(config.solenoid_liftbl[0], config.solenoid_liftbl[1]);
+  private static Solenoid liftFR = new Solenoid(config.solenoid_liftfr[0], config.solenoid_liftfr[1]);
+  private static Solenoid liftBR = new Solenoid(config.solenoid_liftbr[0], config.solenoid_liftbr[1]);
+  private static Lift lift = new Lift(liftFL, liftBL, liftFR, liftBR);
 
   // Vacuum Pump
   private static TalonSRX vacuumPump = new TalonSRX(config.can_vacuum_pump);
@@ -86,9 +92,9 @@ public class Robot extends SampleRobot {
 
   @Override
   public void robotInit() {
-    compressor.start();
+    
     // Init Elevator
-    elevator = new Elevator(m_elevator, joy_co, true);
+    elevator = new Elevator(m_elevator, joy_co, true, elevatorEncoder);
 
     // Init Camera
     CameraServer.getInstance().addCamera(camera);
@@ -120,7 +126,6 @@ public class Robot extends SampleRobot {
     compressor1.start();
 
     while (isOperatorControl() && !isDisabled()) {
-
       if (joy_base.getRawButton(1) && gearShift.get()){
         gearShift.set(false);
       } else if (joy_base.getRawButton(1) && !gearShift.get()){
@@ -129,6 +134,8 @@ public class Robot extends SampleRobot {
 
       elevator.PositionControl();
       intake.OperateIntake();
+      lift.liftOperate(joy_base);
+
       if (joy_co.getRawButton(8)) {
         arm.set(true);
       } else if (!joy_co.getRawButton(8)) {

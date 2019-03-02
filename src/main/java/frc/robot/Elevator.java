@@ -6,27 +6,30 @@ import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class Elevator {
     private CANSparkMax m_elevator;
     private Joystick joy_co;
     private Boolean debug;
+    private Encoder m_encoder;
     private CANPIDController m_pidController;
-    private CANEncoder m_encoder;
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM, maxVel, minVel, maxAcc, allowedErr;
 
-    public Elevator(CANSparkMax m_elevator, Joystick joy_co, boolean debug) {
+    public Elevator(CANSparkMax m_elevator, Joystick joy_co, boolean debug, Encoder m_encoder ) {
         this.m_elevator = m_elevator;
         this.joy_co = joy_co;
         this.debug = debug;
+        this.m_encoder = m_encoder;
+
         // invert rotation
         m_elevator.setInverted(true);
         // Smart Motion Parameters
         m_elevator.restoreFactoryDefaults();
 
         m_pidController = m_elevator.getPIDController();
-        m_encoder = m_elevator.getEncoder();
+        
 
         // PID coefficients
         kP = 5e-5;
@@ -148,12 +151,12 @@ public class Elevator {
          * method on an existing pid object and setting the control type to kSmartMotion
          */
         m_pidController.setReference(setPoint, ControlType.kSmartMotion);
-        processVariable = m_encoder.getPosition();
+        processVariable = m_encoder.get();
 
         SmartDashboard.putNumber("SetPoint", setPoint);
         SmartDashboard.putNumber("Process Variable", processVariable);
         SmartDashboard.putNumber("Output", m_elevator.getAppliedOutput());
-        SmartDashboard.putNumber("Encoder Count", m_encoder.getPosition());
+        SmartDashboard.putNumber("Encoder Count", m_encoder.get());
 
     }
 
