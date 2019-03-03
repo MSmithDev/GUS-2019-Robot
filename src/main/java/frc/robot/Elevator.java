@@ -148,6 +148,7 @@ public class Elevator {
 
         if (joy_co.getRawButton(7)) {
             m_encoder.setPosition(0.0);
+            setPoint = 0;
         } else {
         }
 
@@ -163,23 +164,23 @@ public class Elevator {
         }
         // BALL POSITIONS
         if (joy_co.getRawButton(1) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -15.0;
+            setPoint = -0.0;
         }
         if (joy_co.getRawButton(3) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -85.0;
+            setPoint = -90.0;
         }
         if (joy_co.getRawButton(4) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -180.0;
+            setPoint = -195.0;
         }
         if (joy_co.getRawButton(2) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -277.0;
+            setPoint = -285.0;
         }
         
         //Set MAX and MIN Heights
         if (setPoint < -300) {
             setPoint = -300;
-        } else if (setPoint < -5) {
-            setPoint = -5;
+        } else if (setPoint > 5) {
+            setPoint = 5;
         }
         
         //Manual override while pressing joystick down
@@ -191,7 +192,7 @@ public class Elevator {
         m_pidController.setReference(setPoint, ControlType.kSmartMotion);
         }
 
-        
+
         processVariable = m_encoder.getPosition();
 
         SmartDashboard.putNumber("SetPoint", setPoint);
