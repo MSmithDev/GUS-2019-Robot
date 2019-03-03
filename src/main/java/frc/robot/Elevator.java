@@ -43,7 +43,7 @@ public class Elevator {
         maxRPM = 5700;
 
         // Smart Motion Coefficients
-        maxVel = 7000; // rpm
+        maxVel = 5700; // rpm
         maxAcc = 3500;
 
         // set PID coefficients
@@ -60,6 +60,7 @@ public class Elevator {
         m_pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
         m_pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
 
+        
         // Debug mode
         if (debug) {
             // display PID coefficients on SmartDashboard
@@ -78,9 +79,6 @@ public class Elevator {
             SmartDashboard.putNumber("Allowed Closed Loop Error", allowedErr);
             SmartDashboard.putNumber("Set Position", 0);
             SmartDashboard.putNumber("Set Velocity", 0);
-
-            // button to toggle between velocity and smart motion modes
-            SmartDashboard.putBoolean("Mode", true);
         }
 
     }
@@ -143,9 +141,6 @@ public class Elevator {
             allE = allowedErr;
         }
 
-        boolean mode = SmartDashboard.getBoolean("Mode", false);
-
-        // setPoint = SmartDashboard.getNumber("Set Position", 0);
         /**
          * As with other PID modes, Smart Motion is set by calling the setReference
          * method on an existing pid object and setting the control type to kSmartMotion
@@ -179,19 +174,24 @@ public class Elevator {
         if (joy_co.getRawButton(2) && (joy_co.getRawAxis(3) > 0.3)) {
             setPoint = -277.0;
         }
-
-        // Manual Elevator Motion
-        if (joy_co.getRawAxis(1) > 0.3 || joy_co.getRawAxis(1) < 0.3)
-            setPoint = setPoint + joy_co.getRawAxis(1);
-
+        
+        //Set MAX and MIN Heights
         if (setPoint < -300) {
             setPoint = -300;
-        } else if (setPoint > 0) {
-            setPoint = 0;
+        } else if (setPoint < -5) {
+            setPoint = -5;
+        }
+        
+        //Manual override while pressing joystick down
+        if(joy_co.getRawButton(9)){
+            m_elevator.set(joy_co.getRawAxis(1));
+            setPoint = m_encoder.getPosition();
+        }
+        else {
+        m_pidController.setReference(setPoint, ControlType.kSmartMotion);
         }
 
-        m_pidController.setReference(setPoint, ControlType.kSmartMotion);
-
+        
         processVariable = m_encoder.getPosition();
 
         SmartDashboard.putNumber("SetPoint", setPoint);
