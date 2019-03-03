@@ -42,7 +42,7 @@ public class Robot extends SampleRobot {
   private static CANSparkMax m_elevator = new CANSparkMax(config.can_elevator, MotorType.kBrushless);
 
   // Compressor
-  private static Compressor compressor = new Compressor(config.can_compressor_0);
+  private static Compressor compressor = new Compressor(config.can_compressor);
 
   // Solenoids
   private static Solenoid hatchExtend = new Solenoid(config.solenoid_hatch_extend[0], config.solenoid_hatch_extend[1]);
@@ -105,7 +105,7 @@ public class Robot extends SampleRobot {
     // Init Intake
     intake = new IntakeControls(joy_co, joy_base, airDump, hatchExtend, intakeRoller, vacuumPump, arm);
 
-    // Init Compressors
+    // Init Compressor
     compressor.start();
   }
 
@@ -126,22 +126,18 @@ public class Robot extends SampleRobot {
 
       elevator.PositionControl();
       intake.OperateIntake();
-      //lift.liftOperate(joy_base);
 
-
-      // TEMP TESTING
       
+        //NON-FIELD CENTRIC
         if(joy_base.getTwist() > 0.2 || joy_base.getTwist() < -0.2){
         m_left.set(joy_base.getY()-(joy_base.getTwist()/3));
         m_right.set(joy_base.getY()+(joy_base.getTwist()/3)); } else {
         m_left.set(joy_base.getY()); m_right.set(joy_base.getY()); }
         solenoid_hpod.set(joy_base.getTrigger()); 
         m_center.set(joy_base.getX());
-       
-      // arm.set(joy_base.getTrigger());
 
-      // Used to allow the devices to reset
-      Timer.delay(0.005);
+      //2ms loop time
+      Timer.delay(0.002);
     }
   }
 
