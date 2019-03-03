@@ -13,11 +13,11 @@ public class Elevator {
     private CANSparkMax m_elevator;
     private Joystick joy_co;
     private Boolean debug;
-    private Encoder m_encoder;
+    private CANEncoder m_encoder;
     private CANPIDController m_pidController;
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM, maxVel, minVel, maxAcc, allowedErr;
-
-    public Elevator(CANSparkMax m_elevator, Joystick joy_co, boolean debug, Encoder m_encoder ) {
+    public double setPoint, processVariable;
+    public Elevator(CANSparkMax m_elevator, Joystick joy_co, boolean debug) {
         this.m_elevator = m_elevator;
         this.joy_co = joy_co;
         this.debug = debug;
@@ -29,8 +29,8 @@ public class Elevator {
         m_elevator.restoreFactoryDefaults();
 
         m_pidController = m_elevator.getPIDController();
-        
-
+        m_encoder = m_elevator.getEncoder();
+        setPoint = 0;
         // PID coefficients
         kP = 5e-5;
         kI = 1e-6;
@@ -42,8 +42,8 @@ public class Elevator {
         maxRPM = 5700;
 
         // Smart Motion Coefficients
-        maxVel = 2000; // rpm
-        maxAcc = 1500;
+        maxVel = 7000; // rpm
+        maxAcc = 3500;
 
         // set PID coefficients
         m_pidController.setP(kP);
@@ -142,21 +142,56 @@ public class Elevator {
             allE = allowedErr;
         }
 
-        double setPoint, processVariable;
+       
         boolean mode = SmartDashboard.getBoolean("Mode", false);
 
-        setPoint = SmartDashboard.getNumber("Set Position", 0);
+        //setPoint = SmartDashboard.getNumber("Set Position", 0);
         /**
          * As with other PID modes, Smart Motion is set by calling the setReference
          * method on an existing pid object and setting the control type to kSmartMotion
          */
+        
+
+        
+        if(joy_co.getRawButton(7)){
+            m_encoder.setPosition(0.0);
+        }
+        else {}
+
+        //HATCH POSITIONS
+        if(joy_co.getRawButton(1) && !(joy_co.getRawAxis(3) > 0.3)) {
+            setPoint = -15.0;
+        }
+        if(joy_co.getRawButton(3) && !(joy_co.getRawAxis(3) > 0.3)) {
+            setPoint = -120.0;
+        }
+        if(joy_co.getRawButton(4) && !(joy_co.getRawAxis(3) > 0.3)) {
+            setPoint = -220.0;
+        }
+        //BALL POSITIONS
+        if(joy_co.getRawButton(1) && (joy_co.getRawAxis(3) > 0.3)) {
+            setPoint = -0.0;
+        }
+        if(joy_co.getRawButton(3) && (joy_co.getRawAxis(3) > 0.3)) {
+            setPoint = -85.0;
+        }
+        if(joy_co.getRawButton(4) && (joy_co.getRawAxis(3) > 0.3)) {
+            setPoint = -180.0;
+        }
+        if(joy_co.getRawButton(2) && (joy_co.getRawAxis(3) > 0.3)) {
+            setPoint = -277.0;
+        }
+
+
+
         m_pidController.setReference(setPoint, ControlType.kSmartMotion);
-        processVariable = m_encoder.get();
+        
+        processVariable = m_encoder.getPosition();
 
         SmartDashboard.putNumber("SetPoint", setPoint);
         SmartDashboard.putNumber("Process Variable", processVariable);
         SmartDashboard.putNumber("Output", m_elevator.getAppliedOutput());
-        SmartDashboard.putNumber("Encoder Count", m_encoder.get());
+        SmartDashboard.putNumber("Encoder Count", m_encoder.getPosition());
 
     }
 

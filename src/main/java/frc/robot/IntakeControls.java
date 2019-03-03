@@ -35,40 +35,44 @@ public class IntakeControls {
     public void OperateIntake() {
 
         // Arm Control
-        if (coJoystick.getPOV(0) == 0){
+        if (coJoystick.getPOV() == 180){
             arm.set(true);
-        } else if (coJoystick.getPOV(4) == 180){
+        } else if (coJoystick.getPOV() == 0){
             arm.set(false);
         }
         
         // Roller Control
-        if (coJoystick.getPOV(6) == 270){
+        
+        if (coJoystick.getPOV() == 90){
             intakeRoller.set(ControlMode.PercentOutput, 1);
-        } else if (coJoystick.getPOV(2) == 90){
+        } else if (coJoystick.getPOV() == 270){
             intakeRoller.set(ControlMode.PercentOutput, -1);
         } else {
             intakeRoller.set(ControlMode.PercentOutput, 0);
         }
 
         // Extend Hatch Panel
-        if (coJoystick.getRawButton(4) && coJoystick.getRawAxis(3) == 0 && hatchState == true){
+        if (coJoystick.getRawButton(2)&& !(coJoystick.getRawAxis(3) > 0.3)){
             hatchExtend.set(true);
-            hatchState = false;
-        } else if (coJoystick.getRawButton(4) && coJoystick.getRawAxis(3) == 0 && hatchState == false){
+        } else{
             hatchExtend.set(false);
-            hatchState = true;
+         
         }
+        
 
-        // Vacuum Dump
-        if (coJoystick.getRawButton(6) && vacuumState == true){
+        
+        
+
+        if(coJoystick.getRawButton(6)) {
             vacuum.start();
-            vacuumState = false;
             airDump.set(false);
-        } else if (coJoystick.getRawButton(6) && vacuumState == false){
+        }
+        if(coJoystick.getRawButton(5)) {
             vacuum.stop();
-            vacuumState = true;
             airDump.set(true);
         }
+
+
 
     }
 }

@@ -93,7 +93,7 @@ public class Robot extends SampleRobot {
   public void robotInit() {
     
     // Init Elevator
-    elevator = new Elevator(m_elevator, joy_co, true, elevatorEncoder);
+    elevator = new Elevator(m_elevator, joy_co, true);
 
     // Init Camera
     CameraServer.getInstance().addCamera(camera);
@@ -122,11 +122,10 @@ public class Robot extends SampleRobot {
     // holoDrive.fieldCentric(joy_base);
 
     while (isOperatorControl() && !isDisabled()) {
-      if (joy_base.getRawButton(1) && gearShift.get()){
-        gearShift.set(false);
-      } else if (joy_base.getRawButton(1) && !gearShift.get()){
-        gearShift.set(true);
-      }
+      
+
+      SmartDashboard.putNumber("POV index", joy_co.getPOV());
+
 
       elevator.PositionControl();
       intake.OperateIntake();
@@ -134,13 +133,14 @@ public class Robot extends SampleRobot {
 
 
       // TEMP TESTING
-      /*
-       * if(joy_base.getTwist() > 0.2 || joy_base.getTwist() < -0.2){
-       * m_left.set(joy_base.getY()-(joy_base.getTwist()/3));
-       * m_right.set(joy_base.getY()+(joy_base.getTwist()/3)); } else {
-       * m_left.set(joy_base.getY()); m_right.set(joy_base.getY()); }
-       * solenoid_hpod.set(joy_base.getTrigger()); m_center.set(joy_base.getX());
-       */
+      
+        if(joy_base.getTwist() > 0.2 || joy_base.getTwist() < -0.2){
+        m_left.set(joy_base.getY()-(joy_base.getTwist()/3));
+        m_right.set(joy_base.getY()+(joy_base.getTwist()/3)); } else {
+        m_left.set(joy_base.getY()); m_right.set(joy_base.getY()); }
+        solenoid_hpod.set(joy_base.getTrigger()); 
+        m_center.set(joy_base.getX());
+       
       // arm.set(joy_base.getTrigger());
 
       // Used to allow the devices to reset

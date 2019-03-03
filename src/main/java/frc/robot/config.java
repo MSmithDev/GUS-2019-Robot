@@ -18,7 +18,7 @@ public static int[] solenoid_arm = {18,1}; // PCM0 Channel 1
 public static int[] solenoid_vacuum_release = {18, 4}; // PCM0 Channel 2
 public static int[] solenoid_hatch_extend = {18, 3}; // PCM0 Channel 3
 public static int[] solenoid_gear_shift = {18, 2}; // PCM0 Channel 4
-public static int[] encoder_elevator = {17, 18}; // Channel 17, 18 
+public static int[] encoder_elevator = {0, 1}; // Channel 0, 1 
 //public static int[] solenoid_liftfl = {18, 5}; // PCM0 Channel 5
 //public static int[] solenoid_liftbl = {18, 6}; // PCM0 Channel 6
 //p
