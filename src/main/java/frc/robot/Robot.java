@@ -35,9 +35,6 @@ public class Robot extends SampleRobot {
   // PigeonIMU
   PigeonIMU imu = new PigeonIMU(config.can_pigeon);
 
-  // Camera
-  UsbCamera camera = new UsbCamera("Camera01", 0);
-
   // Quadrature Encoder
   Encoder elevatorEncoder = new Encoder(config.encoder_elevator[0], config.encoder_elevator[1]);
 
@@ -96,7 +93,7 @@ public class Robot extends SampleRobot {
     elevator = new Elevator(m_elevator, joy_co, true);
 
     // Init Camera
-    CameraServer.getInstance().addCamera(camera);
+    
 
     // Init Drive Train
     m_left.setInverted(false);
