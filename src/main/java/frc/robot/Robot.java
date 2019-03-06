@@ -28,6 +28,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import org.opencv.ml.Ml;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.*;
+import com.ctre.phoenix.sensors.PigeonIMU.CalibrationMode;
 
 //Robot Name: Impulse
 public class Robot extends SampleRobot {
@@ -42,7 +43,7 @@ public class Robot extends SampleRobot {
   private static CANSparkMax m_elevator = new CANSparkMax(config.can_elevator, MotorType.kBrushless);
 
   // Compressor
-  private static Compressor compressor = new Compressor(config.can_compressor);
+  private static Compressor compressor = new Compressor(config.can_PCM_0);
 
   // Solenoids
   private static Solenoid hatchExtend = new Solenoid(config.solenoid_hatch_extend[0], config.solenoid_hatch_extend[1]);
@@ -80,7 +81,7 @@ public class Robot extends SampleRobot {
 
   // Initialize Methods
   private Elevator elevator;
-  private IntakeControls intake;
+  private IntakeControls intake;  
 
   public Robot() {
 
@@ -93,8 +94,10 @@ public class Robot extends SampleRobot {
     elevator = new Elevator(m_elevator, joy_co, true);
 
     // Init Camera
+    CameraServer camera = CameraServer.getInstance();
+    camera.startAutomaticCapture();
     
-
+    
     // Init Drive Train
     m_left.setInverted(false);
     m_right.setInverted(true);
@@ -104,7 +107,8 @@ public class Robot extends SampleRobot {
 
     // Init Intake
     intake = new IntakeControls(joy_co, joy_base, airDump, hatchExtend, intakeRoller, vacuumPump, arm);
-
+    
+    
     // Init Compressor
     compressor.start();
   }
@@ -116,7 +120,7 @@ public class Robot extends SampleRobot {
   @Override
   public void operatorControl() {
     // TEMP Disable Drive
-    // holoDrive.fieldCentric(joy_base);
+    //holoDrive.fieldCentric(joy_base);
 
     while (isOperatorControl() && !isDisabled()) {
       
@@ -127,15 +131,20 @@ public class Robot extends SampleRobot {
       elevator.PositionControl();
       intake.OperateIntake();
 
+      // Gear Shifting
       
+        gearShift.set(joy_base.getRawButton(2));
+
+        solenoid_hpod.set(joy_base.getTrigger()); 
         //NON-FIELD CENTRIC
+        
         if(joy_base.getTwist() > 0.2 || joy_base.getTwist() < -0.2){
         m_left.set(joy_base.getY()-(joy_base.getTwist()/3));
         m_right.set(joy_base.getY()+(joy_base.getTwist()/3)); } else {
         m_left.set(joy_base.getY()); m_right.set(joy_base.getY()); }
         solenoid_hpod.set(joy_base.getTrigger()); 
         m_center.set(joy_base.getX());
-
+          
       //2ms loop time
       Timer.delay(0.002);
     }
@@ -143,6 +152,7 @@ public class Robot extends SampleRobot {
 
   @Override
   public void test() {
+    //imu.enterCalibrationMode(CalibrationMode.Temperature);
 
   }
 

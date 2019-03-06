@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.drive.Vector2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class HolonomicDrive {
 
@@ -24,17 +25,21 @@ public class HolonomicDrive {
         this.right = right;
         this.center = center;
         this.imu = imu;
+
+        
     }
 
     public void fieldCentric(Joystick joystick3D) {
         this.joystick = joystick3D;
-
+        
+        left.setInverted(true);
+        right.setInverted(true);
         System.out.println("DEBUG: Starting Field Centric Thread");
         t = new Thread(() -> {
             DifferentialDrive drive = new DifferentialDrive(left, right);
             while (!Thread.interrupted()) {
-                double xSpeed = joystick.getX();
-                double ySpeed = joystick.getY();
+                double xSpeed = joystick.getRawAxis(0);
+                double ySpeed = joystick.getRawAxis(1);
                 ySpeed = limit(ySpeed);
                 ySpeed = applyDeadband(ySpeed, 0.02);
 
@@ -42,37 +47,19 @@ public class HolonomicDrive {
                 xSpeed = applyDeadband(xSpeed, 0.02);
 
                 Vector2d input = new Vector2d(xSpeed, ySpeed);
+                input.rotate(imu.getFusedHeading());
+                
+                
 
-                input.rotate(imu.getAbsoluteCompassHeading());
-
-                drive.arcadeDrive(input.y, joystick.getTwist());
+                drive.arcadeDrive(-input.y, joystick.getRawAxis(2));
                 center.set(input.x);
+
+                SmartDashboard.putNumber("Vector X", input.x);
+                SmartDashboard.putNumber("Vector Y", input.y);
+                SmartDashboard.putNumber("Gyro", imu.getFusedHeading());
 
                 if (joystick3D.getRawButton(2)){
                     hpod.set(true);
-                }
-
-                if (hpod.get()){
-                    left.set((-joystick3D.getRawAxis(1)));
-                    right.set((-joystick3D.getRawAxis(1)));
-
-                    // Rotate Right
-                    if(joystick3D.getRawAxis(2) > 0){
-                    left.set((-joystick3D.getRawAxis(2)));
-                    right.set((joystick3D.getRawAxis(2)));
-                    }
-
-                    // Rotate Left
-                    if(joystick3D.getRawAxis(2) < 0){
-                        left.set((joystick3D.getRawAxis(2)));
-                        right.set((-joystick3D.getRawAxis(2)));
-                    }
-                }
-
-                try {
-                    Thread.sleep(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
             drive.close();

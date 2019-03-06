@@ -153,27 +153,33 @@ public class Elevator {
         }
 
         // HATCH POSITIONS
+
+
+        //TESTING PURPOSES ONLY, DELETE LATER!!!!!!!!!
+        if (joy_co.getRawButton(8)){
+            setPoint = 0;
+        }
         if (joy_co.getRawButton(1) && !(joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -15.0;
+            setPoint = -10.0;
         }
         if (joy_co.getRawButton(3) && !(joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -120.0;
+            setPoint = -67.0;
         }
         if (joy_co.getRawButton(4) && !(joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -220.0;
+            setPoint = -120.0;
         }
         // BALL POSITIONS
         if (joy_co.getRawButton(1) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -0.0;
+            setPoint = -4.0;
         }
         if (joy_co.getRawButton(3) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -90.0;
+            setPoint = -45.0;
         }
         if (joy_co.getRawButton(4) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -195.0;
+            setPoint = -97.5;
         }
         if (joy_co.getRawButton(2) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -285.0;
+            setPoint = -152.5;
         }
         
         //Set MAX and MIN Heights
