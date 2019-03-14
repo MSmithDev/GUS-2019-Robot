@@ -26,6 +26,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import org.opencv.ml.Ml;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.*;
 import com.ctre.phoenix.sensors.PigeonIMU.CalibrationMode;
@@ -34,7 +37,7 @@ import com.ctre.phoenix.sensors.PigeonIMU.CalibrationMode;
 public class Robot extends SampleRobot {
 
   // PigeonIMU
-  PigeonIMU imu = new PigeonIMU(config.can_pigeon);
+  //PigeonIMU imu = new PigeonIMU(config.can_pigeon);
 
   // Quadrature Encoder
   Encoder elevatorEncoder = new Encoder(config.encoder_elevator[0], config.encoder_elevator[1]);
@@ -50,12 +53,15 @@ public class Robot extends SampleRobot {
   private static Solenoid airDump = new Solenoid(config.solenoid_vacuum_release[0], config.solenoid_vacuum_release[1]);
   private static Solenoid solenoid_hpod = new Solenoid(config.solenoid_hpod[0], config.solenoid_hpod[1]);
   private static Solenoid gearShift = new Solenoid(config.solenoid_gear_shift[0], config.solenoid_gear_shift[1]);
-  //private static Solenoid liftFL = new Solenoid(config.solenoid_liftfl[0], config.solenoid_liftfl[1]);
-  //private static Solenoid liftBL = new Solenoid(config.solenoid_liftbl[0], config.solenoid_liftbl[1]);
-  //private static Solenoid liftFR = new Solenoid(config.solenoid_liftfr[0], config.solenoid_liftfr[1]);
-  //private static Solenoid liftBR = new Solenoid(config.solenoid_liftbr[0], config.solenoid_liftbr[1]);
-  //private static Lift lift = new Lift(liftFL, liftBL, liftFR, liftBR);
+  
+  private static Solenoid lift_front_retract = new Solenoid(config.solenoid_lift_front_retract[0],config.solenoid_lift_front_retract[1]);
+  private static Solenoid lift_front_half = new Solenoid(config.solenoid_lift_front_half[0],config.solenoid_lift_front_half[1]);
+  private static Solenoid lift_front_full = new Solenoid(config.solenoid_lift_front_full[0],config.solenoid_lift_front_full[1]);
+  private static Solenoid lift_back_retract = new Solenoid(config.solenoid_lift_back_retract[0],config.solenoid_lift_back_retract[1]);
+  private static Solenoid lift_back_half = new Solenoid(config.solenoid_lift_back_half[0],config.solenoid_lift_back_half[1]);
+  private static Solenoid lift_back_full = new Solenoid(config.solenoid_lift_back_full[0],config.solenoid_lift_back_full[1]);
 
+  
   // Vacuum Pump
   private static TalonSRX vacuumPump = new TalonSRX(config.can_vacuum_pump);
 
@@ -71,7 +77,7 @@ public class Robot extends SampleRobot {
   private static CANSparkMax m_left2 = new CANSparkMax(config.can_drive_left2, MotorType.kBrushless);
   private static CANSparkMax m_right2 = new CANSparkMax(config.can_drive_right2, MotorType.kBrushless);
   private static CANSparkMax m_center = new CANSparkMax(config.can_drive_center, MotorType.kBrushless);
-  HolonomicDrive holoDrive = new HolonomicDrive(m_left, m_right, m_center, imu, solenoid_hpod);
+  //HolonomicDrive holoDrive = new HolonomicDrive(m_left, m_right, m_center, imu, solenoid_hpod);
 
   // Driver Controls
   private static Joystick joy_base = new Joystick(0);
@@ -82,6 +88,9 @@ public class Robot extends SampleRobot {
   // Initialize Methods
   private Elevator elevator;
   private IntakeControls intake;  
+  private Lift climber;
+
+  private TalonSRX lift_wheel = new TalonSRX(config.can_lift_wheel);
 
   public Robot() {
 
@@ -106,32 +115,80 @@ public class Robot extends SampleRobot {
     m_center.setInverted(true);
 
     // Init Intake
-    intake = new IntakeControls(joy_co, joy_base, airDump, hatchExtend, intakeRoller, vacuumPump, arm);
+    intake = new IntakeControls(joy_co, joy_base, airDump, hatchExtend, intakeRoller, vacuumPump, arm, elevator);
     
-    
+    //Neutral Mode Talons
+    intakeRoller.setNeutralMode(NeutralMode.Brake);
+
     // Init Compressor
     compressor.start();
+
+    climber = new Lift(lift_front_retract, lift_front_half, lift_front_full, lift_back_retract, lift_back_half, lift_back_full);
+     
   }
 
   public void autonomous() {
 
+// m_left.set(-0.1);
+// m_right.set(-0.1);
+// Timer.delay(3);
+// m_right.set(0.0);
+// m_left.set(0.0);
+
+while (isAutonomous() && !isDisabled()){
+  climber.liftOperate(joy_base);
+  elevator.PositionControl();
+  intake.OperateIntake();
+
+   // Gear Shifting
+   
+     gearShift.set(joy_base.getRawButton(2));
+
+     solenoid_hpod.set(joy_base.getTrigger()); 
+     //NON-FIELD CENTRIC
+     
+     if(joy_base.getTwist() > 0.2 || joy_base.getTwist() < -0.2){
+     m_left.set(joy_base.getY()-(joy_base.getTwist()/3));
+     m_right.set(joy_base.getY()+(joy_base.getTwist()/3)); } else {
+     m_left.set(joy_base.getY()); m_right.set(joy_base.getY()); }
+     solenoid_hpod.set(joy_base.getTrigger()); 
+     m_center.set(joy_base.getX());
+       
+     //Cargo Intake Controlls for Driver Control
+     if (joy_base.getRawButton(3)){
+       intakeRoller.set(ControlMode.PercentOutput, 1);
+     } else if (joy_base.getRawButton(4)){
+       intakeRoller.set(ControlMode.PercentOutput, -1);
+     } else {
+       intakeRoller.set(ControlMode.PercentOutput, 0);
+     }
+
+
+
+    }
   }
 
   @Override
   public void operatorControl() {
-    // TEMP Disable Drive
-    //holoDrive.fieldCentric(joy_base);
-
+   
     while (isOperatorControl() && !isDisabled()) {
       
-
-      SmartDashboard.putNumber("POV index", joy_co.getPOV());
-
-
+      
+      climber.liftOperate(joy_base);
       elevator.PositionControl();
-      intake.OperateIntake();
+     intake.OperateIntake();
 
-      // Gear Shifting
+      
+        if(joy_base.getPOV() == 0) {
+          lift_wheel.set(ControlMode.PercentOutput,0.2);
+        }
+        else if (joy_base.getPOV() == 180) {
+          lift_wheel.set(ControlMode.PercentOutput, -0.2);
+        } else {
+          lift_wheel.set(ControlMode.PercentOutput, 0.0);
+        }
+     
+     // Gear Shifting
       
         gearShift.set(joy_base.getRawButton(2));
 
@@ -145,6 +202,17 @@ public class Robot extends SampleRobot {
         solenoid_hpod.set(joy_base.getTrigger()); 
         m_center.set(joy_base.getX());
           
+        //Cargo Intake Controlls for Driver Control
+        if (joy_base.getRawButton(3)){
+          intakeRoller.set(ControlMode.PercentOutput, 1);
+        } else if (joy_base.getRawButton(4)){
+          intakeRoller.set(ControlMode.PercentOutput, -1);
+        } else {
+          intakeRoller.set(ControlMode.PercentOutput, 0);
+        }
+
+
+
       //2ms loop time
       Timer.delay(0.002);
     }
@@ -157,7 +225,7 @@ public class Robot extends SampleRobot {
   }
 
   public void disabled() {
-    holoDrive.disable();
+    //holoDrive.disable();
     
   }
 }

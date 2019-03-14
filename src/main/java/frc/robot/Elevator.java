@@ -155,38 +155,38 @@ public class Elevator {
         // HATCH POSITIONS
 
 
-        //TESTING PURPOSES ONLY, DELETE LATER!!!!!!!!!
+        //Set Down to 0
         if (joy_co.getRawButton(8)){
-            setPoint = 0;
+            setPoint = config.pos_ground;
         }
         if (joy_co.getRawButton(1) && !(joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -10.0;
+            setPoint = config.pos_hatch_1;
         }
         if (joy_co.getRawButton(3) && !(joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -67.0;
+            setPoint = config.pos_hatch_2;
         }
         if (joy_co.getRawButton(4) && !(joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -120.0;
+            setPoint = config.pos_hatch_3;
         }
         // BALL POSITIONS
         if (joy_co.getRawButton(1) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -4.0;
+            setPoint = config.pos_ball_depo;
         }
         if (joy_co.getRawButton(3) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -45.0;
+            setPoint = config.pos_ball_1;
         }
         if (joy_co.getRawButton(4) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -97.5;
+            setPoint = config.pos_ball_2;
         }
         if (joy_co.getRawButton(2) && (joy_co.getRawAxis(3) > 0.3)) {
-            setPoint = -152.5;
+            setPoint = config.pos_ball_3;
         }
         
         //Set MAX and MIN Heights
-        if (setPoint < -300) {
-            setPoint = -300;
-        } else if (setPoint > 5) {
-            setPoint = 5;
+        if (setPoint < -145) {
+            setPoint = -145;
+        } else if (setPoint > 1) {
+            setPoint = 1;
         }
         
         //Manual override while pressing joystick down
@@ -206,6 +206,12 @@ public class Elevator {
         SmartDashboard.putNumber("Output", m_elevator.getAppliedOutput());
         SmartDashboard.putNumber("Encoder Count", m_encoder.getPosition());
 
+    }
+
+    public void hatch_rub() {
+        if(setPoint < -2) {
+        setPoint = setPoint + config.pos_hatch_rub;
+        }
     }
 
 }

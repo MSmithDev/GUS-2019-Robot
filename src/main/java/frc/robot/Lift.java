@@ -5,42 +5,75 @@ import edu.wpi.first.wpilibj.Solenoid;
 
 public class Lift{
 
-    private Solenoid liftfl;
-    private Solenoid liftbl;
-    private Solenoid liftfr;
-    private Solenoid liftbr;
-    private Joystick driverJoystick;
+    
+    private Solenoid lift_front_retract;
+    private Solenoid lift_front_half;
+    private Solenoid lift_front_full;
+    private Solenoid lift_back_retract;
+    private Solenoid lift_back_half;
+    private Solenoid lift_back_full;
+    private Joystick joy_base;
 
 
-    public Lift(Solenoid liftfl, Solenoid liftbl, Solenoid liftfr, Solenoid liftbr){
+    public Lift(Solenoid f_retract, Solenoid f_half, Solenoid f_full, Solenoid b_retract, Solenoid b_half, Solenoid b_full){
 
-        this.liftfl = liftfl;
-        this.liftbl = liftbl;
-        this.liftfr = liftfr;
-        this.liftbr = liftbr;
+        this.lift_front_retract = f_retract;
+        this.lift_front_half = f_half;
+        this.lift_front_full = f_full;
+
+        this.lift_back_retract = b_retract;
+        this.lift_back_half = b_half;
+        this.lift_back_full = b_full;
+
+        
 
     }
 
     public void liftOperate(Joystick driverJoystick){
 
-        this.driverJoystick = driverJoystick;
+        this.joy_base = driverJoystick;
+        //retract back
+       if(joy_base.getRawButton(10)){
+        lift_back_retract.set(false);
+        lift_back_full.set(false);
+        lift_back_half.set(false);
+       }
 
-        // Front lifts up & down
-        if (driverJoystick.getRawButton(7)){
-            liftfl.set(true);
-            liftfr.set(true);
-        }else if (!driverJoystick.getRawButton(7)){
-            liftfl.set(false);
-            liftfr.set(false);
-        }
+       //half back
+       if(joy_base.getRawButton(9)){
+        lift_back_retract.set(true);
+        lift_back_full.set(false);
+        lift_back_half.set(true);
+       }
 
-        //Back lifts up & down
-        if (driverJoystick.getRawButton(8)){
-            liftbl.set(true);
-            liftbr.set(true);
-        }else if (!driverJoystick.getRawButton(8)){
-            liftbl.set(false);
-            liftbr.set(false);
-        }
-    }
+       //full back
+       if(joy_base.getRawButton(8)){
+        lift_back_retract.set(true);
+        lift_back_full.set(true);
+        lift_back_half.set(true);
+       }
+
+
+       //retract front
+       if(joy_base.getRawButton(5)){
+        lift_front_retract.set(false);
+        lift_front_full.set(false);
+        lift_front_half.set(false);
+       }
+
+       //half front
+       if(joy_base.getRawButton(6)){
+        lift_front_retract.set(true);
+        lift_front_full.set(false);
+        lift_front_half.set(true);
+       }
+
+       //full front
+       if(joy_base.getRawButton(7)){
+        lift_front_retract.set(true);
+        lift_front_full.set(true);
+        lift_front_half.set(true);
+       }
+      
+}
 }

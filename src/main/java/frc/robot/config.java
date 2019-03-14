@@ -13,15 +13,38 @@ public static int can_vacuum_pump = 9;
 public static int can_PCM_0 = 10;
 public static int can_PCM_1 = 7;
 public static int can_pigeon = 19;
+public static int can_lift_wheel = 21;
 public static int[] solenoid_hpod = {18,0}; // PCM18 Channel 0
 public static int[] solenoid_arm = {18,1}; // PCM18 Channel 1
-public static int[] solenoid_vacuum_release = {18, 4}; // PCM18 Channel 2
+public static int[] solenoid_vacuum_release = {18, 4}; // PCM18 Channel 4
 public static int[] solenoid_hatch_extend = {18, 3}; // PCM18 Channel 3
-public static int[] solenoid_gear_shift = {18, 2}; // PCM18 Channel 4
+public static int[] solenoid_gear_shift = {18, 2}; // PCM18 Channel 2
 public static int[] encoder_elevator = {0, 1}; // DIO 0, DIO 1 
-//public static int[] solenoid_liftfl = {18, 5}; // PCM18 Channel 5
-//public static int[] solenoid_liftbl = {18, 6}; // PCM18 Channel 6
-//public static int[] solenoid_liftfr = {18, 7}; // PCM18 Channel 7
-//public static int[] solenoid_liftbr = {19, 0}; // PCM19 Channel 0
+//Lift 
+public static int[] solenoid_lift_front_retract = {20, 5}; // PCM18 Channel 5
+public static int[] solenoid_lift_front_half = {20, 3}; // PCM18 Channel 6
+public static int[] solenoid_lift_front_full = {20, 4}; // PCM18 Channel 7
+
+public static int[] solenoid_lift_back_retract = {20, 2}; // PCM19 Channel 0
+public static int[] solenoid_lift_back_half = {20, 1}; // PCM19 Channel 0
+public static int[] solenoid_lift_back_full = {20, 0}; // PCM19 Channel 0
+
+//### Elevator Positions ### 
+//Ground
+public static double pos_ground = 0.0;
+//Hatch
+public static double pos_hatch_1 = -14.0;
+public static double pos_hatch_2 = -67.0;
+public static double pos_hatch_3 = -120.0;
+//Hatch drop offset
+public static double pos_hatch_rub = 3;
+
+//Ball
+public static double pos_ball_depo = -4.0;
+public static double pos_ball_1 = -45.0;
+public static double pos_ball_2 = -93.5;
+public static double pos_ball_3 = -145.0;
+
+
 
 }

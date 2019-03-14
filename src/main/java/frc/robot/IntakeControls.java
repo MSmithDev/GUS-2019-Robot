@@ -18,9 +18,11 @@ public class IntakeControls {
     private Solenoid arm;
     private TalonSRX intakeRoller;
     private Vacuum vacuum;
+    private Elevator elevator;
+    private boolean hatchDropped = false;
 
     public IntakeControls(Joystick coJoystick, Joystick drJoystick, Solenoid airDump, Solenoid hatchExtend,
-            TalonSRX intakeRoller, TalonSRX vacuumMotor, Solenoid arm) {
+            TalonSRX intakeRoller, TalonSRX vacuumMotor, Solenoid arm, Elevator elevator) {
 
         this.drJoystick = drJoystick;
         this.coJoystick = coJoystick;
@@ -28,6 +30,7 @@ public class IntakeControls {
         this.hatchExtend = hatchExtend;
         this.intakeRoller = intakeRoller;
         this.arm = arm;
+        this.elevator = elevator;
 
         vacuum = new Vacuum(vacuumMotor);
 
@@ -51,6 +54,7 @@ public class IntakeControls {
             intakeRoller.set(ControlMode.PercentOutput, 0);
         }
 
+
         // Extend Hatch Panel
         if (coJoystick.getRawButton(2) && !(coJoystick.getRawAxis(3) > 0.3)) {
             hatchExtend.set(true);
@@ -62,10 +66,19 @@ public class IntakeControls {
         if (coJoystick.getRawButton(6)) {
             vacuum.start();
             airDump.set(false);
+            hatchDropped = false;
         }
         if (coJoystick.getRawButton(5)) {
             vacuum.stop();
             airDump.set(true);
+            
+            if(!hatchDropped) {
+                elevator.hatch_rub();
+                hatchDropped = true;
+            }
+
+
         }
+
     }
 }
