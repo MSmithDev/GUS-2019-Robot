@@ -65,8 +65,10 @@ public class Robot extends SampleRobot {
   // Vacuum Pump
   private static TalonSRX vacuumPump = new TalonSRX(config.can_vacuum_pump);
 
-  // Arm
+  // Arms/Climb
   private static Solenoid arm = new Solenoid(config.solenoid_arm[0], config.solenoid_arm[1]);
+  private static CANSparkMax liftArm = new CANSparkMax(config.can_lift_arm, MotorType.kBrushless);
+  private static CANSparkMax liftBase = new CANSparkMax(config.can_lift_back, MotorType.kBrushless);
 
   // Intake
   private static TalonSRX intakeRoller = new TalonSRX(config.can_intake_roller);
@@ -123,7 +125,7 @@ public class Robot extends SampleRobot {
     // Init Compressor
     compressor.start();
 
-    climber = new Lift(lift_front_retract, lift_front_half, lift_front_full, lift_back_retract, lift_back_half, lift_back_full);
+    climber = new Lift(liftArm, liftBase);
      
   }
 
@@ -154,6 +156,9 @@ while (isAutonomous() && !isDisabled()){
      solenoid_hpod.set(joy_base.getTrigger()); 
      m_center.set(joy_base.getX());
        
+ 
+
+
      //Cargo Intake Controlls for Driver Control
      if (joy_base.getRawButton(3)){
        intakeRoller.set(ControlMode.PercentOutput, 1);
@@ -188,6 +193,9 @@ while (isAutonomous() && !isDisabled()){
           lift_wheel.set(ControlMode.PercentOutput, 0.0);
         }
      
+
+
+
      // Gear Shifting
       
         gearShift.set(joy_base.getRawButton(2));

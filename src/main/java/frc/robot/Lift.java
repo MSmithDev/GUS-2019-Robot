@@ -1,31 +1,22 @@
 package frc.robot;
 
+import com.revrobotics.CANSparkMax;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Solenoid;
 
 public class Lift{
 
     
-    private Solenoid lift_front_retract;
-    private Solenoid lift_front_half;
-    private Solenoid lift_front_full;
-    private Solenoid lift_back_retract;
-    private Solenoid lift_back_half;
-    private Solenoid lift_back_full;
+    private CANSparkMax lift_arm;
+    private CANSparkMax lift_base;
     private Joystick joy_base;
 
 
-    public Lift(Solenoid f_retract, Solenoid f_half, Solenoid f_full, Solenoid b_retract, Solenoid b_half, Solenoid b_full){
+    public Lift(CANSparkMax lift_arm, CANSparkMax lift_base){
 
-        this.lift_front_retract = f_retract;
-        this.lift_front_half = f_half;
-        this.lift_front_full = f_full;
-
-        this.lift_back_retract = b_retract;
-        this.lift_back_half = b_half;
-        this.lift_back_full = b_full;
-
-        
+        this.lift_arm = lift_arm;
+        this.lift_base = lift_base;
 
     }
 
@@ -34,46 +25,46 @@ public class Lift{
         this.joy_base = driverJoystick;
         //retract back
        if(joy_base.getRawButton(10)){
-        lift_back_retract.set(false);
-        lift_back_full.set(false);
-        lift_back_half.set(false);
+        lift_base.set(-1);
+       } else if (joy_base.getRawButton(10)){
+        lift_base.set(0);
        }
 
        //half back
        if(joy_base.getRawButton(9)){
-        lift_back_retract.set(true);
-        lift_back_full.set(false);
-        lift_back_half.set(true);
-       }
+        lift_base.set(.5);
+       } else if (joy_base.getRawButton(9)){
+        lift_base.set(0);
+       }     
 
        //full back
        if(joy_base.getRawButton(8)){
-        lift_back_retract.set(true);
-        lift_back_full.set(true);
-        lift_back_half.set(true);
+        lift_base.set(1);
+       } else if (joy_base.getRawButton(8)){
+        lift_base.set(0);
        }
 
 
-       //retract front
+       //retract arm
        if(joy_base.getRawButton(5)){
-        lift_front_retract.set(false);
-        lift_front_full.set(false);
-        lift_front_half.set(false);
+        lift_arm.set(-1);
+       } else if (joy_base.getRawButton(5)){
+        lift_arm.set(0);
        }
 
-       //half front
+       //half arm
        if(joy_base.getRawButton(6)){
-        lift_front_retract.set(true);
-        lift_front_full.set(false);
-        lift_front_half.set(true);
+        lift_arm.set(.5);
+       } else if (joy_base.getRawButton(6)){
+        lift_arm.set(0);
        }
 
-       //full front
+       //full arm
        if(joy_base.getRawButton(7)){
-        lift_front_retract.set(true);
-        lift_front_full.set(true);
-        lift_front_half.set(true);
+        lift_arm.set(1);
+       } else if (joy_base.getRawButton(7)){
+        lift_arm.set(0);
        }
       
-}
+    }
 }
