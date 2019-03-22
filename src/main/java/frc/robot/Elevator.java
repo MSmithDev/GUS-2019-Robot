@@ -22,7 +22,6 @@ public class Elevator {
         this.m_elevator = m_elevator;
         this.joy_co = joy_co;
         this.debug = debug;
-        this.m_encoder = m_encoder;
 
         // Invert Rotation
         m_elevator.setInverted(true);
