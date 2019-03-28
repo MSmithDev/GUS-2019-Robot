@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
@@ -84,6 +85,11 @@ public class Robot extends SampleRobot {
   private IntakeControls intake;
   private Lift climber;
 
+  //Limit Switches
+  DigitalInput armLimit = new DigitalInput(24);
+  DigitalInput baseLimit = new DigitalInput(25);
+
+
   private TalonSRX lift_wheel = new TalonSRX(config.can_lift_wheel);
 
   public Robot() {
@@ -98,7 +104,9 @@ public class Robot extends SampleRobot {
 
     // Init Camera
     CameraServer camera = CameraServer.getInstance();
+    CameraServer camera1 = CameraServer.getInstance();
     camera.startAutomaticCapture();
+    camera1.startAutomaticCapture();
 
     // Init Drive Train
     m_left.setInverted(false);
@@ -117,7 +125,7 @@ public class Robot extends SampleRobot {
     compressor.start();
 
     // Init Climber
-    climber = new Lift(liftArm, liftBase);
+    climber = new Lift(liftArm, liftBase, armLimit, baseLimit);
 
   }
 
@@ -197,14 +205,17 @@ public class Robot extends SampleRobot {
       solenoid_hpod.set(joy_base.getTrigger());
       m_center.set(joy_base.getX());
 
-      // Cargo Intake Controlls for Driver Control
-      if (joy_base.getRawButton(3)) {
+      // Cargo Intake Controlls for Driver & CoDriver Control
+      if (joy_base.getRawButton(3) || joy_co.getPOV() == 90) {
         intakeRoller.set(ControlMode.PercentOutput, 1);
-      } else if (joy_base.getRawButton(4)) {
+      } else if (joy_base.getRawButton(4) || joy_co.getPOV() == 270) {
         intakeRoller.set(ControlMode.PercentOutput, -1);
-      } else {
+      } else if (!joy_base.getRawButton(3) && !joy_base.getRawButton(4) && joy_co.getPOV() != 90 && joy_co.getPOV() != 270){
         intakeRoller.set(ControlMode.PercentOutput, 0);
       }
+
+      
+
 
       // 2ms loop time
       Timer.delay(0.002);
@@ -217,7 +228,7 @@ public class Robot extends SampleRobot {
     while (isTest() && !isDisabled()){
 
       climber.liftTestMode(joy_base);
-      
+
     }
   }
 

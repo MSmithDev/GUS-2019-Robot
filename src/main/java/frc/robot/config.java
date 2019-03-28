@@ -35,17 +35,18 @@ public static int[] solenoid_lift_back_full = {20, 0}; // PCM19 Channel 0
 //Ground
 public static double pos_ground = 0.0;
 //Hatch
-public static double pos_hatch_1 = -14.0;
-public static double pos_hatch_2 = -67.0;
-public static double pos_hatch_3 = -120.0;
+public static double pos_hatch_1 = -9.5;
+public static double pos_hatch_2 = -58.3;
+public static double pos_hatch_3 = -109.0;
 //Hatch drop offset
 public static double pos_hatch_rub = 3;
 
 //Ball
-public static double pos_ball_depo = -4.0;
-public static double pos_ball_1 = -45.0;
-public static double pos_ball_2 = -93.5;
-public static double pos_ball_3 = -145.0;
+public static double pos_ball_depo = -1.5;
+public static double pos_ball_load = -63.0;
+public static double pos_ball_1 = -39.0;
+public static double pos_ball_2 = -87.0;
+public static double pos_ball_3 = -136;
 
 
 

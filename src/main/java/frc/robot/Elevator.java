@@ -80,6 +80,8 @@ public class Elevator {
             SmartDashboard.putNumber("Set Velocity", 0);
         }
 
+        SmartDashboard.putNumber("Elevator Value", setPoint);
+
     }
 
     public void PositionControl() {
@@ -180,14 +182,17 @@ public class Elevator {
         if (joy_co.getRawButton(2) && (joy_co.getRawAxis(3) > 0.3)) {
             setPoint = config.pos_ball_3;
         }
-        
+        if (joy_co.getRawButton(6) && (joy_co.getRawAxis(3) > 0.3)){
+            setPoint = config.pos_ball_load;
+        }
+
         //Set MAX and MIN Heights
         if (setPoint < -145) {
             setPoint = -145;
         } else if (setPoint > 1) {
             setPoint = 1;
         }
-        
+
         //Manual override while pressing joystick down
         if(joy_co.getRawButton(9)){
             m_elevator.set(joy_co.getRawAxis(1));
@@ -205,6 +210,8 @@ public class Elevator {
         SmartDashboard.putNumber("Output", m_elevator.getAppliedOutput());
         SmartDashboard.putNumber("Encoder Count", m_encoder.getPosition());
 
+
+        SmartDashboard.putNumber("Elevator Value", setPoint);
     }
 
     public void hatch_rub() {

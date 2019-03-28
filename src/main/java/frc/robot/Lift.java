@@ -4,8 +4,8 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
-import com.sun.java.swing.plaf.windows.TMSchema.Control;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,11 +19,15 @@ public class Lift {
     private CANPIDController m_pid_arm, m_pid_base;
     private CANEncoder m_pid_arm_encoder, m_pid_base_encoder;
     private double armSetpoint, baseSetpoint;
+    private DigitalInput armLimitSW, baseLimitSW;
+    private boolean armLimit, baseLimit;
 
-    public Lift(CANSparkMax lift_arm, CANSparkMax lift_base) {
+    public Lift(CANSparkMax lift_arm, CANSparkMax lift_base, DigitalInput armLimitSW, DigitalInput baseLimitSW) {
 
         this.lift_arm = lift_arm;
         this.lift_base = lift_base;
+        this.armLimitSW = armLimitSW;
+        this.baseLimitSW = baseLimitSW;
 
         m_pid_arm = lift_arm.getPIDController();
         m_pid_base = lift_base.getPIDController();
@@ -62,9 +66,14 @@ public class Lift {
         armSetpoint = 0;
         baseSetpoint = 0;
 
+        armLimit = false;
+        baseLimit = false;
     }
 
     public void liftOperate(Joystick driverJoystick) {
+
+        armLimit = armLimitSW.get();
+        baseLimit = baseLimitSW.get();
 
         this.joy_base = driverJoystick;
         // operate back
@@ -88,35 +97,68 @@ public class Lift {
         } else if (joy_base.getRawButton(5)) {
             // arm up rpm
             armSetpoint = -1091;
+        } else if (joy_base.getRawButton(13)) {
+            armSetpoint = 5600;
+        } else if (joy_base.getRawButton(11)) {
+            armSetpoint = -5600;
         } else {
             // arm idle rpm
             armSetpoint = 0;
             m_pid_arm.setIAccum(0);
         }
 
+        // Arm Limit Switch
+        // if (armLimit && driverJoystick.getRawButton(7) &&
+        // !driverJoystick.getRawButton(5)){
+        // m_pid_arm.setReference(0, ControlType.kVelocity);
+        // } else if (armLimit && driverJoystick.getRawButton(5) &&
+        // !driverJoystick.getRawButton(7)){
+        // m_pid_arm.setReference(armSetpoint, ControlType.kVelocity);
+        // } else {
+        // m_pid_arm.setReference(armSetpoint, ControlType.kVelocity);
+        // }
+
+        // Base Limit Switch
+        // if (baseLimit && driverJoystick.getRawButton(8) &&
+        // !driverJoystick.getRawButton(10)){
+        // m_pid_arm.setReference(0, ControlType.kVelocity);
+        // } else if (baseLimit && driverJoystick.getRawButton(10) &&
+        // !driverJoystick.getRawButton(8)){
+        // m_pid_arm.setReference(baseSetpoint, ControlType.kVelocity);
+        // } else {
+        // m_pid_arm.setReference(baseSetpoint, ControlType.kVelocity);
+        // }
+
         // Arm "Limit Switch"
-        if (m_pid_arm_encoder.getPosition() < 237 && m_pid_arm_encoder.getPosition() >= 0) {
-            m_pid_arm.setReference(armSetpoint, ControlType.kVelocity);
-        } else if (m_pid_arm_encoder.getPosition() >= 237 && joy_base.getRawButton(7)) {
-            m_pid_arm.setReference(armSetpoint, ControlType.kVelocity);
-        } else if (m_pid_arm_encoder.getPosition() <= 0 && joy_base.getRawButton(5)) {
-            m_pid_arm.setReference(armSetpoint, ControlType.kVelocity);
-        } else if (!joy_base.getRawButton(5) && !joy_base.getRawButton(7)) {
-            m_pid_arm.setReference(0, ControlType.kVelocity);
-        }
+        // if (m_pid_arm_encoder.getPosition() < 237 && m_pid_arm_encoder.getPosition()
+        // >= 0) {
+        // m_pid_arm.setReference(armSetpoint, ControlType.kVelocity);
+        // } else if (m_pid_arm_encoder.getPosition() >= 237 &&
+        // joy_base.getRawButton(7)) {
+        // m_pid_arm.setReference(armSetpoint, ControlType.kVelocity);
+        // } else if (m_pid_arm_encoder.getPosition() <= 0 && joy_base.getRawButton(5))
+        // {
+        // m_pid_arm.setReference(armSetpoint, ControlType.kVelocity);
+        // } else if (!joy_base.getRawButton(5) && !joy_base.getRawButton(7)) {
+        // m_pid_arm.setReference(0, ControlType.kVelocity);
+        // }
 
         // Base "Limit Switch"
-        if (m_pid_base_encoder.getPosition() < 100 && m_pid_base_encoder.getPosition() >= 0) {
-            m_pid_base.setReference(baseSetpoint, ControlType.kVelocity);
-        } else if (m_pid_base_encoder.getPosition() >= 100 && joy_base.getRawButton(8)) {
-            m_pid_base.setReference(baseSetpoint, ControlType.kVelocity);
-        } else if (m_pid_base_encoder.getPosition() <= 0 && joy_base.getRawButton(10)) {
-            m_pid_base.setReference(baseSetpoint, ControlType.kVelocity);
-        } else if (!joy_base.getRawButton(8) && !joy_base.getRawButton(10)){
-            m_pid_base.setReference(0, ControlType.kVelocity);
-        }
+        // if (m_pid_base_encoder.getPosition() < 100 &&
+        // m_pid_base_encoder.getPosition() >= 0) {
+        // m_pid_base.setReference(baseSetpoint, ControlType.kVelocity);
+        // } else if (m_pid_base_encoder.getPosition() >= 100 &&
+        // joy_base.getRawButton(8)) {
+        // m_pid_base.setReference(baseSetpoint, ControlType.kVelocity);
+        // } else if (m_pid_base_encoder.getPosition() <= 0 &&
+        // joy_base.getRawButton(10)) {
+        // m_pid_base.setReference(baseSetpoint, ControlType.kVelocity);
+        // } else if (!joy_base.getRawButton(8) && !joy_base.getRawButton(10)){
+        // m_pid_base.setReference(0, ControlType.kVelocity);
+        // }
 
         m_pid_base.setReference(baseSetpoint, ControlType.kVelocity);
+        m_pid_arm.setReference(armSetpoint, ControlType.kVelocity);
 
     }
 

@@ -46,13 +46,13 @@ public class IntakeControls {
         }
 
         // Roller Control
-        if (coJoystick.getPOV() == 90) {
-            intakeRoller.set(ControlMode.PercentOutput, 1);
-        } else if (coJoystick.getPOV() == 270) {
-            intakeRoller.set(ControlMode.PercentOutput, -1);
-        } else {
-            intakeRoller.set(ControlMode.PercentOutput, 0);
-        }
+        // if (coJoystick.getPOV() == 90) {
+        //     intakeRoller.set(ControlMode.PercentOutput, 1);
+        // } else if (coJoystick.getPOV() == 270) {
+        //     intakeRoller.set(ControlMode.PercentOutput, -1);
+        // } else {
+        //     intakeRoller.set(ControlMode.PercentOutput, 0);
+        // }
 
 
         // Extend Hatch Panel
@@ -63,12 +63,12 @@ public class IntakeControls {
         }
 
         // Vacuum & Air Controls
-        if (coJoystick.getRawButton(6)) {
+        if (coJoystick.getRawButton(6) && !(coJoystick.getRawAxis(3) > .3)) {
             vacuum.start();
             airDump.set(false);
             hatchDropped = false;
         }
-        if (coJoystick.getRawButton(5)) {
+        if (coJoystick.getRawButton(5) && !(coJoystick.getRawAxis(3) > .3)) {
             vacuum.stop();
             airDump.set(true);
             
